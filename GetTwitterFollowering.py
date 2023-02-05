@@ -4,7 +4,7 @@ import importlib
 
 # List of required libraries for script to run
 required_libraries = ["requests", "json", "pandas",
-                      "time", "geopy", "os", "cryptography", "math", "getpass"]
+                      "time", "geopy", "os", "math", "getpass"]
 
 # Loop through the libraries
 for library in required_libraries:
@@ -16,7 +16,6 @@ for library in required_libraries:
         subprocess.run(["pip3", "install", library])
 
 # Import libraries for the script
-from cryptography.fernet import Fernet
 import os
 import geopy.distance
 from geopy.geocoders import Nominatim
@@ -52,83 +51,30 @@ def create_twitter_dir(twitter_dir_in):
         os.mkdir(twitter_dir_in)
 
 
-# Get key that encrypts the Twitter Bearer Token
-def get_encryption_key():
-    encryption_key_file = open(
-        twitter_dir + "token" + dir_separator + 'fernet.twitkey', 'r')
-    encryption_key = encryption_key_file.read().encode()
-    encryption_key_file.close()
-    return encryption_key
-
-# Get the saved encrypted Twitter Bearer Token, decrypts it with the retrieved key, and returns it
-def get_saved_token():
-    encryption_key = get_encryption_key()
-    fernet = Fernet(encryption_key)
-    bearer_file = open(twitter_dir + "token" +
-                       dir_separator + 'twitter.token', 'r')
-    enc_token = bearer_file.read()
-    bearer_file.close()
-    enc_token = enc_token.encode()
-    bearer_token = fernet.decrypt(enc_token).decode()
-    return bearer_token
-
 # Tests if there is a saved Twitter Bearer Token, if not it provides instructions to create one, and gives the user the option to save it in the future.
 def get_bearer_token():
     global bearer_token
-    if not (os.path.isfile(twitter_dir + "token" + dir_separator + 'twitter.token') and os.path.isfile(twitter_dir + "token" + dir_separator + 'fernet.twitkey')):
-        print("###############################################################################################################")
-        print("#                                                                                                             #")
-        print("#   No Twitter Bearer Token or encryption key file found                                                      #")
-        print("#                                                                                                             #")
-        print("#   If you do not have a Twitter Bearer Token, follow the below steps:                                        #")
-        print("#       • Go to https://developer.twitter.com/en/portal/                                                      #")
-        print("#       • Login with your Twitter account                                                                     #")
-        print("#       • Create a Project                                                                                    #")
-        print("#           • Create an App in that Project                                                                   #")
-        print("#       • In that App generate a Bearer Token in the \"Keys and tokens\" section                                #")
-        print("#       • Copy your Twitter Bearer Token and store it a safe place YOU can retrieve it                        #")
-        print("#           • This app gives you the option to save the Token                                                 #")
-        print("#           • If you save the Token, you should not get this message again, unless the files are deleted      #")
-        print("#           • Keep a copy of your your Twitter Bearer Token, you cannot retrieve it again                     #")
-        print("#           • You can generate a new Twitter Bearer Token, but your current one will lose access              #")
-        print("#                                                                                                             #")
-        print("#   DO NOT give ANYONE a copy of your your Twitter Bearer Token, as it can give them access to your account   #")
-        print("#                                                                                                             #")
-        print("###############################################################################################################")
-        # Ask user to provide the Twitter Bearer Token
-        bearer_token = getpass.getpass(prompt='\nPaste in Twitter Bearer Token and press Enter (no text will appear): ')
-        # Ask user if they would like to save the Twitter Bearer Token
-        save_token = input('\nWould you like to save the Bearer Token? [Y/N] ')
-        # If they answer yes to saving the Twitter Bearer Token it will be encrypted and saved
-        if save_token.lower() == "y" or save_token.lower() == "" or save_token.lower() == "yes":
-            # Create directory for files to be saved 
-            create_twitter_dir(twitter_dir)
-            # Create encryption key
-            encryption_key = Fernet.generate_key()
-            # Create directory to save key and token
-            if not os.path.exists(twitter_dir + "token" + dir_separator):
-                os.mkdir(twitter_dir + "token" + dir_separator)
-            encryption_key_file = open(
-                twitter_dir + "token" + dir_separator + 'fernet.twitkey', 'w')
-            # Save key file
-            encryption_key_file.write(encryption_key.decode())
-            encryption_key_file.close()
-            # Make sure the key can be retrieved
-            encryption_key = get_encryption_key()
-            fernet = Fernet(encryption_key)
-            # Encrypt Twitter Bearer Token
-            enc_token = fernet.encrypt(bearer_token.encode())
-            bearer_file = open(twitter_dir + "token" +
-                               dir_separator + 'twitter.token', 'w')
-            # Save encrypted Twitter Bearer Token
-            # I know the key and token are being saved to the same directory and this offers little protection, but it is something and I was experimenting
-            bearer_file.write(enc_token.decode()) 
-            bearer_file.close()
-            # Retrieve saved token
-            bearer_token = get_saved_token()
-    else:
-        # Retrieve saved token
-        bearer_token = get_saved_token()
+    print("###############################################################################################################")
+    print("#                                                                                                             #")
+    print("#   Input your Twitter Bearer Token                                                                           #")
+    print("#                                                                                                             #")
+    print("#   If you do not have a Twitter Bearer Token, follow the below steps:                                        #")
+    print("#       • Go to https://developer.twitter.com/en/portal/                                                      #")
+    print("#       • Login with your Twitter account                                                                     #")
+    print("#       • Create a Project                                                                                    #")
+    print("#           • Create an App in that Project                                                                   #")
+    print("#       • In that App generate a Bearer Token in the \"Keys and tokens\" section                                #")
+    print("#       • Copy your Twitter Bearer Token and store it a safe place YOU can retrieve it                        #")
+    print("#           • This app gives you the option to save the Token                                                 #")
+    print("#           • If you save the Token, you should not get this message again, unless the files are deleted      #")
+    print("#           • Keep a copy of your your Twitter Bearer Token, you cannot retrieve it again                     #")
+    print("#           • You can generate a new Twitter Bearer Token, but your current one will lose access              #")
+    print("#                                                                                                             #")
+    print("#   DO NOT give ANYONE a copy of your your Twitter Bearer Token, as it can give them access to your account   #")
+    print("#                                                                                                             #")
+    print("###############################################################################################################")
+    # Ask user to provide the Twitter Bearer Token
+    bearer_token = getpass.getpass(prompt='\nPaste in Twitter Bearer Token and press Enter (no text will appear): ')
 
 
 # Create the user URL that will be used to look up their user ID
