@@ -1,4 +1,3 @@
-
 # Import libraries to check if the other required libraries are installed
 import subprocess
 import importlib
@@ -7,12 +6,13 @@ import importlib
 required_libraries = ["requests", "json", "pandas",
                       "time", "geopy", "os", "cryptography", "math", "getpass"]
 
-# Loop through the libraaries
+# Loop through the libraries
 for library in required_libraries:
+    # Test if the library is available
     try:
-        importlib.import_module(library)  # Test if the library is avalible
+        importlib.import_module(library)
+    # If the library is not available install the library with pip3
     except ImportError:
-        # If the librarly is not avable install the library with pip3
         subprocess.run(["pip3", "install", library])
 
 # Import libraries for the script
@@ -46,13 +46,13 @@ else:
 twitter_dir = home_dir + dir_separator + 'Twitter Followering' + dir_separator
 
 
-# Test if the Twitter directory existis, if it does not it makes it
+# Test if the Twitter directory exists, if it does not it makes it
 def create_twitter_dir(twitter_dir_in):
     if not os.path.exists(twitter_dir_in):
         os.mkdir(twitter_dir_in)
 
 
-# Get key that encripts the Twitter Bearer Token
+# Get key that encrypts the Twitter Bearer Token
 def get_encryption_key():
     encryption_key_file = open(
         twitter_dir + "token" + dir_separator + 'fernet.twitkey', 'r')
@@ -60,7 +60,7 @@ def get_encryption_key():
     encryption_key_file.close()
     return encryption_key
 
-# Get the saved encripted Twitter Bearer Token, decripts it with the retreaved key, and returns it
+# Get the saved encrypted Twitter Bearer Token, decrypts it with the retrieved key, and returns it
 def get_saved_token():
     encryption_key = get_encryption_key()
     fernet = Fernet(encryption_key)
@@ -72,7 +72,7 @@ def get_saved_token():
     bearer_token = fernet.decrypt(enc_token).decode()
     return bearer_token
 
-# Tests if there is a saved Twitter Bearer Token, if not it porivides instrutions to create one, and gives the user the option to save it in the future.
+# Tests if there is a saved Twitter Bearer Token, if not it provides instructions to create one, and gives the user the option to save it in the future.
 def get_bearer_token():
     global bearer_token
     if not (os.path.isfile(twitter_dir + "token" + dir_separator + 'twitter.token') and os.path.isfile(twitter_dir + "token" + dir_separator + 'fernet.twitkey')):
@@ -95,18 +95,17 @@ def get_bearer_token():
         print("#   DO NOT give ANYONE a copy of your your Twitter Bearer Token, as it can give them access to your account   #")
         print("#                                                                                                             #")
         print("###############################################################################################################")
-        # Ask user to proivide the Twitter Bearer Token
-        # bearer_token = input('\nWhat is your Bearer Token? ')
-        bearer_token = getpass.getpass(prompt='\nWhat is your Bearer Token? ')
+        # Ask user to provide the Twitter Bearer Token
+        bearer_token = getpass.getpass(prompt='\nPaste in Bearer Token and press Enter (no text will appear): ')
         # Ask user if they would like to save the Twitter Bearer Token
         save_token = input('\nWould you like to save the Bearer Token? [Y/N] ')
-        # If they answer yes to saving the Twitter Bearer Token it will be encripted and saved
+        # If they answer yes to saving the Twitter Bearer Token it will be encrypted and saved
         if save_token.lower() == "y" or save_token.lower() == "" or save_token.lower() == "yes":
             # Create directory for files to be saved 
             create_twitter_dir(twitter_dir)
-            # Create encription key
+            # Create encryption key
             encryption_key = Fernet.generate_key()
-            # Create directry to saave key and token
+            # Create directory to save key and token
             if not os.path.exists(twitter_dir + "token" + dir_separator):
                 os.mkdir(twitter_dir + "token" + dir_separator)
             encryption_key_file = open(
@@ -114,23 +113,22 @@ def get_bearer_token():
             # Save key file
             encryption_key_file.write(encryption_key.decode())
             encryption_key_file.close()
-            # Make sure the key can be retreaved
+            # Make sure the key can be retrieved
             encryption_key = get_encryption_key()
             fernet = Fernet(encryption_key)
-            # Encript Twitter Bearer Token
+            # Encrypt Twitter Bearer Token
             enc_token = fernet.encrypt(bearer_token.encode())
             bearer_file = open(twitter_dir + "token" +
                                dir_separator + 'twitter.token', 'w')
-            # Save encripted Twitter Bearer Token
-            # I know the key and token are being saved to the same directory and this offeres little protection, but it is something and I was experimenting
+            # Save encrypted Twitter Bearer Token
+            # I know the key and token are being saved to the same directory and this offers little protection, but it is something and I was experimenting
             bearer_file.write(enc_token.decode()) 
             bearer_file.close()
-            # Retreave saved token
+            # Retrieve saved token
             bearer_token = get_saved_token()
     else:
-        # Retreave saved token
+        # Retrieve saved token
         bearer_token = get_saved_token()
-    # return bearer_token
 
 
 # Create the user URL that will be used to look up their user ID
@@ -149,9 +147,9 @@ def create_following_url(user_id):
     return "https://api.twitter.com/2/users/{}/following".format(user_id)
 
 
-# Configure paramiters for looks ups
+# Configure parameters for looks ups
 def get_params(pagination_token):
-    # If the previos responce provided a pagination token it passes it on to get the next page of data
+    # If the previous response provided a pagination token it passes it on to get the next page of data
     if pagination_token is not None:
         params = {"user.fields": "created_at,location,public_metrics", "max_results": 1000,
                   "pagination_token": pagination_token}
@@ -182,13 +180,13 @@ def connect_to_endpoint(url, params):
     return response.json()
 
 
-# Twitter's free API has a limit of 15 Following/Followers queries per 15 minits
+# Twitter's free API has a limit of 15 Following/Followers queries per 15 minutes
 # This will pause the script so this time can pass
 def countdown(t):
     while t:
         mins, secs = divmod(t, 60)
         timer = '{:02d}:{:02d}'.format(mins, secs)
-        print("Twitter's API has a limit of 15 queries per 15 minutes, pausing for 15 minits:", timer,'\r', end='\r')
+        print("Twitter's API has a limit of 15 queries per 15 minutes, pausing for 15 minutes:", timer,'\r', end='\r')
         time.sleep(1)
         t -= 1
     print("\033[K", end="")
@@ -206,7 +204,7 @@ def get_twitter_data(url, loops, ering):
         params = get_params(next_token)
         json_response = connect_to_endpoint(url, params)
         # A status code 429 means that the 15 queries per 15 min cap has been reached
-        # This will pasue the script for 15 mins to allow the time to pass and try again
+        # This will pause the script for 15 mins to allow the time to pass and try again
         while '\"status\": 429' in json.dumps(json_response):
             countdown(int(905))
             print('\r', end='\r')
@@ -228,14 +226,14 @@ def get_twitter_data(url, loops, ering):
     return df
 
 
-# Get the location to compare againts the follower/following location data
+# Get the location to compare against the follower/following location data
 def get_location():
     geolocator = Nominatim(user_agent="FollowerDistance")
-    # Ask user if they want to use their location, if yes it uses thir IP location to compare.
+    # Ask user if they want to use their location, if yes it uses their IP location to compare.
     use_current = input(
         '\nDo you want to use your current location to compare against your followers/following? [Y/N] ')
     longitude_latitude = None
-    # If the user selsects no they will be prompted for a location to compare against
+    # If the user selects no they will be prompted for a location to compare against
     if use_current.lower() == "n" or use_current.lower() == "no":
         location_found = None
         while location_found is None:
@@ -263,15 +261,13 @@ def get_location():
 # Get distance from the the compare location selected
 def get_follower_distance(df_in, current_location, city):
     geolocator = Nominatim(user_agent="FollowerDistance")
-    # Get user location or selected location to compare against
-    # current_location, city = get_location()
     
     distance = []
     found_location = []
 
     location_df = pd.DataFrame(
         columns=['twit_location', 'distance', 'found_location'])
-    # Get a list of loactions to look up by deduplicationg all the locations from the Following/Follower list
+    # Get a list of locations to look up by deduplicating all the locations from the Following/Follower list
     dedup_df_loc = df_in['location'].drop_duplicates()
     lookup_location = ''
 
@@ -283,16 +279,14 @@ def get_follower_distance(df_in, current_location, city):
     for follower_loc in dedup_df_loc:
         follower_loc = str(follower_loc)
         location_in = None
-        # Replace location with a serchable one
+        # Replace location with a searchable one
         # Airport codes do not seem to work
         if follower_loc.lower() == 'atl':
             lookup_location = 'Atlanta, GA'
         # 'Veitshöchheim, Germany' is the exact center of the EU
-        elif follower_loc.lower() == 'european union':
+        elif follower_loc.lower() == 'european union' or follower_loc.lower() == 'eu':
             lookup_location = 'Veitshöchheim, Germany'
-        elif follower_loc.lower() == 'eu':
-            lookup_location = 'Veitshöchheim, Germany'
-        # This was a weird one, 'san jose' for some reson causes the geolocator library to crash
+        # This was a weird one, 'san jose' for some reason causes the geolocator library to crash
         elif 'san jose' in follower_loc.lower() and 'ca' in follower_loc.lower():
             lookup_location = 'Santa Clara County, California'
         else:
@@ -320,16 +314,15 @@ def get_follower_distance(df_in, current_location, city):
                     {'twit_location': [follower_loc], 'distance': [calculated_distance], 'found_location': [str(location_in)]}) 
                 location_df = pd.concat(
                     [location_df, temp_df], ignore_index=True)
-            # If the location was Nane, set data to 'Not Found'
+            # If the location was None, set data to 'Not Found'
             else:
                 temp_df = pd.DataFrame(
                     {'twit_location': [follower_loc], 'distance': 'Not Found', 'found_location': 'Not Found'})
                 location_df = pd.concat(
                     [location_df, temp_df], ignore_index=True)
     print("\033[K", end="")
-    # location_df.to_csv(twitter_dir + "location_out.csv")
 
-    # Loop through all user loacations and set to the found loactions 
+    # Loop through all user locations and set to the found locations 
     for follower_loc in df_in['location']:
         if not pd.isnull(follower_loc):
             temp_df = location_df.loc[location_df['twit_location']
@@ -339,7 +332,7 @@ def get_follower_distance(df_in, current_location, city):
         else:
             distance.append(follower_loc)
             found_location.append(follower_loc)
-    df_in['distince'] = distance
+    df_in['distance'] = distance
     df_in['found_location'] = found_location
     return df_in, city
 
@@ -348,16 +341,16 @@ def main():
     # GET shot URL to track the number of runs
     # If you want to see the number of times this script has been run go to the below link:
     # https://www.shorturl.at/url-total-clicks.php?u=shorturl.at%2FauvzF
-    # requests.request("GET", "https://shorturl.at/auvzF")
+    requests.request("GET", "https://shorturl.at/auvzF")
     
     # Get the Twitter Bearer Token, if saved it will pull from memory
     # If the Twitter Bearer Token is not saved the user will be prompted
     get_bearer_token()
 
-    # Bring in the global twitter_username varable from outside the def
+    # Bring in the global twitter_username variable from outside the def
     global twitter_username
     
-    # If the twitter_username was not declred, prompt user for it
+    # If the twitter_username was not declared, prompt user for it
     if twitter_username is None:
         twitter_username = input('\nWhat Twitter user are you searching? ')
     user_url = create_user_url(twitter_username)
@@ -375,22 +368,22 @@ def main():
     # It will either be their current IP location or a location they decide
     user_location, user_city = get_location()
 
-    # Start timer to reprot the total time the script took to run
+    # Start timer to report the total time the script took to run
     start_time = time.time()
 
-    # Get the number of followers and following of inputed Twitter user
+    # Get the number of followers and following of inputted Twitter user
     follower_num = int(twitter_user_id['data']['public_metrics']['followers_count'])
     following_num = int(twitter_user_id['data']['public_metrics']['following_count'])
 
-    # Set twitter_user_id varable to the Twitter ID from the 
+    # Set twitter_user_id variable to the Twitter ID from the 
     twitter_user_id = twitter_user_id['data']['id']
     # Create the follower and following URLs 
     follower_url = create_follower_url(twitter_user_id)
     following_url = create_following_url(twitter_user_id)
     
-    # Calculate the number of loops that the script will have to pull followewr data
+    # Calculate the number of loops that the script will have to pull follower data
     follower_loops = math.ceil(follower_num/1000)
-    # Get the followewr data
+    # Get the follower data
     follower_df = get_twitter_data(follower_url, follower_loops, "follower")
     follower_df['source'] = 'Follower'
 
@@ -408,12 +401,12 @@ def main():
     # Get distance from followers/following users
     df_all, city = get_follower_distance(df_all, user_location, user_city)
 
-    # Create directiry to save output file to, it it is not alredy there
+    # Create directory to save output file to, it it is not already there
     create_twitter_dir(twitter_dir)
-    # Create User_Info direcoty if it does not alrady exist
+    # Create User_Info directory if it does not alrady exist
     if not os.path.isdir(twitter_dir + 'User_Info' + dir_separator):
         os.mkdir(twitter_dir + 'User_Info' + dir_separator)
-    # Svae follower/following data to CSV file
+    # Save follower/following data to CSV file
     df_all.to_csv(twitter_dir + 'User_Info' + dir_separator +
                   '{}-{}.csv'.format(twitter_username, city), index=False)
     print("\nSaved Twitter followering data to: " + twitter_dir + 'User_Info' +
