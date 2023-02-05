@@ -286,8 +286,8 @@ def get_follower_distance(df_in, current_location, city):
 def main():
     # GET shot URL to track the number of runs
     # If you want to see the number of times this script has been run go to the below link:
-    # https://www.shorturl.at/url-total-clicks.php?u=shorturl.at%2FauvzF
-    requests.request("GET", "https://shorturl.at/auvzF")
+    # https://www.shorturl.at/url-total-clicks.php?u=shorturl.at/FJPZ2
+    requests.request("GET", "https://shorturl.at/FJPZ2")
     
     # Get the Twitter Bearer Token, if saved it will pull from memory
     # If the Twitter Bearer Token is not saved the user will be prompted
