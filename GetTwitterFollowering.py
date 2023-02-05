@@ -96,7 +96,7 @@ def get_bearer_token():
         print("#                                                                                                             #")
         print("###############################################################################################################")
         # Ask user to provide the Twitter Bearer Token
-        bearer_token = getpass.getpass(prompt='\nPaste in Bearer Token and press Enter (no text will appear): ')
+        bearer_token = getpass.getpass(prompt='\nPaste in Twitter Bearer Token and press Enter (no text will appear): ')
         # Ask user if they would like to save the Twitter Bearer Token
         save_token = input('\nWould you like to save the Bearer Token? [Y/N] ')
         # If they answer yes to saving the Twitter Bearer Token it will be encrypted and saved
@@ -395,9 +395,9 @@ def main():
 
     # Combine the follower and following data
     df_all = pd.concat([follower_df, following_df], ignore_index=True)
-    # Drop duplicate usernames, keeping the followers first 
+    # Drop duplicate usernames, keeping the followers first
     df_all = df_all.drop_duplicates(subset='username', keep="first")
-    
+
     # Get distance from followers/following users
     df_all, city = get_follower_distance(df_all, user_location, user_city)
 
