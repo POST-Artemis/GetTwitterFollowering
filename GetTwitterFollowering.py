@@ -101,7 +101,7 @@ def get_bearer_token():
         save_token = input('\nWould you like to save the Bearer Token? [Y/N] ')
         # If they answer yes to saving the Twitter Bearer Token it will be encrypted and saved
         if save_token.lower() == "y" or save_token.lower() == "" or save_token.lower() == "yes":
-            # Create directory for files to be saved 
+            # Create directory for files to be saved
             create_twitter_dir(twitter_dir)
             # Create encryption key
             encryption_key = Fernet.generate_key()
@@ -122,7 +122,7 @@ def get_bearer_token():
                                dir_separator + 'twitter.token', 'w')
             # Save encrypted Twitter Bearer Token
             # I know the key and token are being saved to the same directory and this offers little protection, but it is something and I was experimenting
-            bearer_file.write(enc_token.decode()) 
+            bearer_file.write(enc_token.decode())
             bearer_file.close()
             # Retrieve saved token
             bearer_token = get_saved_token()
@@ -340,8 +340,8 @@ def get_follower_distance(df_in, current_location, city):
 def main():
     # GET shot URL to track the number of runs
     # If you want to see the number of times this script has been run go to the below link:
-    # https://www.shorturl.at/url-total-clicks.php?u=shorturl.at%2FauvzF
-    requests.request("GET", "https://shorturl.at/auvzF")
+    # https://www.shorturl.at/url-total-clicks.php?u=shorturl.at/ahH13
+    requests.request("GET", "https://shorturl.at/ahH13")
     
     # Get the Twitter Bearer Token, if saved it will pull from memory
     # If the Twitter Bearer Token is not saved the user will be prompted
